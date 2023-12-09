@@ -82,17 +82,16 @@ var plugin = function (args) {
             for (var i = 0; i < valuesToRemove.length; i += 1) {
                 var val = valuesToRemove[i].toLowerCase();
                 if (condition === 'includes' && prop.includes(val)) {
-                    args.jobLog("Removing stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(val, "\n"));
                     removeStream = true;
                     break;
                 }
                 else if (condition === 'not_includes' && !prop.includes(val)) {
-                    args.jobLog("Keeping stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(val, "\n"));
                     removeStream = false;
                     break;
                 }
             }
             if (removeStream) {
+                args.jobLog("Removing stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(valuesToRemove, "\n"));
                 stream.removed = true;
             }
         }
