@@ -83,16 +83,17 @@ var plugin = function (args) {
                 var val = valuesToRemove[i].toLowerCase();
                 if (condition === 'includes' && prop.includes(val)) {
                     removeStream = true;
-                    break;
                 }
                 else if (condition === 'not_includes' && !prop.includes(val)) {
                     removeStream = false;
-                    break;
                 }
             }
             if (removeStream) {
                 args.jobLog("Removing stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(valuesToRemove, "\n"));
                 stream.removed = true;
+            }
+            else {
+                args.jobLog("Keeping stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(valuesToRemove, "\n"));
             }
         }
     });

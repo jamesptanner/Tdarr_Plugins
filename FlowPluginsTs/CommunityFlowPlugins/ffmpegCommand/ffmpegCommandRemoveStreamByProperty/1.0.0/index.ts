@@ -105,15 +105,16 @@ const plugin = (args: IpluginInputArgs): IpluginOutputArgs => {
 
         if (condition === 'includes' && prop.includes(val)) {
           removeStream = true;
-          break;
         } else if (condition === 'not_includes' && !prop.includes(val)) {
           removeStream = false;
-          break;
         }
       }      
       if (removeStream){
         args.jobLog(`Removing stream index ${stream.index} because ${propertyToCheck} of ${prop} ${condition} ${valuesToRemove}\n`);
         stream.removed = true;
+      }
+      else {        
+        args.jobLog(`Keeping stream index ${stream.index} because ${propertyToCheck} of ${prop} ${condition} ${valuesToRemove}\n`);
       }
     }
   });
