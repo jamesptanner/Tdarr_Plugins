@@ -99,13 +99,15 @@ const plugin = (args: IpluginInputArgs): IpluginOutputArgs => {
 
     if (target) {
       const prop = String(target).toLowerCase();
-      let removeStream = (condition !== 'includes'); //not_inculudes = true, includes = false
+      let removeStream = (condition !== 'includes'); //not_includes = true, includes = false
       for (let i = 0; i < valuesToRemove.length; i += 1) {
         const val = valuesToRemove[i].toLowerCase();
 
         if (condition === 'includes' && prop.includes(val)) {
+          args.jobLog(`inc, ${prop} == ${val}\n`);
           removeStream = true;
         } else if (condition === 'not_includes' && !prop.includes(val)) {
+          args.jobLog(`!inc, ${prop} != ${val}\n`);
           removeStream = false;
         }
       }      

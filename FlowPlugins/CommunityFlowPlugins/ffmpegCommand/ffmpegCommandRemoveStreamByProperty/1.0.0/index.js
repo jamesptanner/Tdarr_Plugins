@@ -78,13 +78,15 @@ var plugin = function (args) {
         }
         if (target) {
             var prop = String(target).toLowerCase();
-            var removeStream = (condition !== 'includes'); //not_inculudes = true, includes = false
+            var removeStream = (condition !== 'includes'); //not_includes = true, includes = false
             for (var i = 0; i < valuesToRemove.length; i += 1) {
                 var val = valuesToRemove[i].toLowerCase();
                 if (condition === 'includes' && prop.includes(val)) {
+                    args.jobLog("inc, ".concat(prop, " == ").concat(val, "\n"));
                     removeStream = true;
                 }
                 else if (condition === 'not_includes' && !prop.includes(val)) {
+                    args.jobLog("!inc, ".concat(prop, " != ").concat(val, "\n"));
                     removeStream = false;
                 }
             }
