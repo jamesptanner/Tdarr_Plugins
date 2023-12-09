@@ -78,19 +78,22 @@ var plugin = function (args) {
         }
         if (target) {
             var prop = String(target).toLowerCase();
+            var removeStream = (condition !== 'includes'); //not_inculudes = true, includes = false
             for (var i = 0; i < valuesToRemove.length; i += 1) {
                 var val = valuesToRemove[i].toLowerCase();
-                var prefix = "Removing stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop);
                 if (condition === 'includes' && prop.includes(val)) {
-                    args.jobLog("".concat(prefix, " includes ").concat(val, "\n"));
-                    // eslint-disable-next-line no-param-reassign
-                    stream.removed = true;
+                    args.jobLog("Removing stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(val, "\n"));
+                    removeStream = true;
+                    break;
                 }
                 else if (condition === 'not_includes' && !prop.includes(val)) {
-                    args.jobLog("".concat(prefix, " not_includes ").concat(val, "\n"));
-                    // eslint-disable-next-line no-param-reassign
-                    stream.removed = true;
+                    args.jobLog("Keeping stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(val, "\n"));
+                    removeStream = false;
+                    break;
                 }
+            }
+            if (removeStream) {
+                stream.removed = true;
             }
         }
     });
