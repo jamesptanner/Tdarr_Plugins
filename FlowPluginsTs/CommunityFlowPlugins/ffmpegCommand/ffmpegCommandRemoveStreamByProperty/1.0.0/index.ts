@@ -104,10 +104,10 @@ const plugin = (args: IpluginInputArgs): IpluginOutputArgs => {
         const val = valuesToRemove[i].toLowerCase();
 
         if (condition === 'includes' && prop.includes(val)) {
-          args.jobLog(`inc, ${prop} == ${val}\n`);
+          args.jobLog(`inc, ${prop} == ${val}, remove\n`);
           removeStream = true;
-        } else if (condition === 'not_includes' && !prop.includes(val)) {
-          args.jobLog(`!inc, ${prop} != ${val}\n`);
+        } else if (condition === 'not_includes' && prop.includes(val)) {
+          args.jobLog(`!inc, ${prop} == ${val}, keep\n`);
           removeStream = false;
         }
       }      

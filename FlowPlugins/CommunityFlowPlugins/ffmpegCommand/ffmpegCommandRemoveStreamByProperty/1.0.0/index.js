@@ -82,11 +82,11 @@ var plugin = function (args) {
             for (var i = 0; i < valuesToRemove.length; i += 1) {
                 var val = valuesToRemove[i].toLowerCase();
                 if (condition === 'includes' && prop.includes(val)) {
-                    args.jobLog("inc, ".concat(prop, " == ").concat(val, "\n"));
+                    args.jobLog("inc, ".concat(prop, " == ").concat(val, ", remove\n"));
                     removeStream = true;
                 }
-                else if (condition === 'not_includes' && !prop.includes(val)) {
-                    args.jobLog("!inc, ".concat(prop, " != ").concat(val, "\n"));
+                else if (condition === 'not_includes' && prop.includes(val)) {
+                    args.jobLog("!inc, ".concat(prop, " == ").concat(val, ", keep\n"));
                     removeStream = false;
                 }
             }
