@@ -16,6 +16,22 @@ var details = function () { return ({
     icon: '',
     inputs: [
         {
+            label: 'Codec Type To Check',
+            name: 'codecTypeToCheck',
+            type: 'string',
+            defaultValue: 'codec_type',
+            inputUI: {
+                type: 'dropdown',
+                options: [
+                    'any',
+                    'video',
+                    'audio',
+                    'subtitle'
+                ],
+            },
+            tooltip: "\n        Specifiy the codec stream type to process\n        ",
+        },
+        {
             label: 'Property To Check',
             name: 'propertyToCheck',
             type: 'string',
@@ -66,36 +82,39 @@ var plugin = function (args) {
     var propertyToCheck = String(args.inputs.propertyToCheck).trim();
     var valuesToRemove = String(args.inputs.valuesToRemove).trim().split(',');
     var condition = String(args.inputs.condition);
+    var codecTypeToCheck = String(args.inputs.codecTypeToCheck);
     args.variables.ffmpegCommand.streams.forEach(function (stream) {
         var _a;
-        var target = '';
-        if (propertyToCheck.includes('.')) {
-            var parts = propertyToCheck.split('.');
-            target = (_a = stream[parts[0]]) === null || _a === void 0 ? void 0 : _a[parts[1]];
-        }
-        else {
-            target = stream[propertyToCheck];
-        }
-        if (target) {
-            var prop = String(target).toLowerCase();
-            var removeStream = (condition !== 'includes'); //not_includes = true, includes = false
-            for (var i = 0; i < valuesToRemove.length; i += 1) {
-                var val = valuesToRemove[i].toLowerCase();
-                if (condition === 'includes' && prop.includes(val)) {
-                    args.jobLog("inc, ".concat(prop, " == ").concat(val, ", remove\n"));
-                    removeStream = true;
-                }
-                else if (condition === 'not_includes' && prop.includes(val)) {
-                    args.jobLog("!inc, ".concat(prop, " == ").concat(val, ", keep\n"));
-                    removeStream = false;
-                }
-            }
-            if (removeStream) {
-                args.jobLog("Removing stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(valuesToRemove, "\n"));
-                stream.removed = true;
+        if (codecTypeToCheck === 'any' || stream.codec_type === codecTypeToCheck) {
+            var target = '';
+            if (propertyToCheck.includes('.')) {
+                var parts = propertyToCheck.split('.');
+                target = (_a = stream[parts[0]]) === null || _a === void 0 ? void 0 : _a[parts[1]];
             }
             else {
-                args.jobLog("Keeping stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(valuesToRemove, "\n"));
+                target = stream[propertyToCheck];
+            }
+            if (target) {
+                var prop = String(target).toLowerCase();
+                var removeStream = (condition !== 'includes'); //not_includes = true, includes = false
+                for (var i = 0; i < valuesToRemove.length; i += 1) {
+                    var val = valuesToRemove[i].toLowerCase();
+                    if (condition === 'includes' && prop.includes(val)) {
+                        args.jobLog("inc, ".concat(prop, " == ").concat(val, ", remove\n"));
+                        removeStream = true;
+                    }
+                    else if (condition === 'not_includes' && prop.includes(val)) {
+                        args.jobLog("!inc, ".concat(prop, " == ").concat(val, ", keep\n"));
+                        removeStream = false;
+                    }
+                }
+                if (removeStream) {
+                    args.jobLog("Removing stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(valuesToRemove, "\n"));
+                    stream.removed = true;
+                }
+                else {
+                    args.jobLog("Keeping stream index ".concat(stream.index, " because ").concat(propertyToCheck, " of ").concat(prop, " ").concat(condition, " ").concat(valuesToRemove, "\n"));
+                }
             }
         }
     });

@@ -19,6 +19,25 @@ const details = (): IpluginDetails => ({
   icon: '',
   inputs: [
     {
+      label: 'Codec Type To Check',
+      name: 'codecTypeToCheck',
+      type: 'string',
+      defaultValue: 'codec_type',
+      inputUI: {
+        type: 'dropdown',
+        options: [
+          'any',
+          'video',
+          'audio',
+          'subtitle'
+        ],
+      },
+      tooltip:
+        `
+        Specifiy the codec stream type to process
+        `,
+    },
+    {
       label: 'Property To Check',
       name: 'propertyToCheck',
       type: 'string',
@@ -87,36 +106,39 @@ const plugin = (args: IpluginInputArgs): IpluginOutputArgs => {
   const propertyToCheck = String(args.inputs.propertyToCheck).trim();
   const valuesToRemove = String(args.inputs.valuesToRemove).trim().split(',');
   const condition = String(args.inputs.condition);
+  const codecTypeToCheck = String(args.inputs.codecTypeToCheck);
 
   args.variables.ffmpegCommand.streams.forEach((stream) => {
-    let target = '';
-    if (propertyToCheck.includes('.')) {
-      const parts = propertyToCheck.split('.');
-      target = stream[parts[0]]?.[parts[1]];
-    } else {
-      target = stream[propertyToCheck];
-    }
-
-    if (target) {
-      const prop = String(target).toLowerCase();
-      let removeStream = (condition !== 'includes'); //not_includes = true, includes = false
-      for (let i = 0; i < valuesToRemove.length; i += 1) {
-        const val = valuesToRemove[i].toLowerCase();
-
-        if (condition === 'includes' && prop.includes(val)) {
-          args.jobLog(`inc, ${prop} == ${val}, remove\n`);
-          removeStream = true;
-        } else if (condition === 'not_includes' && prop.includes(val)) {
-          args.jobLog(`!inc, ${prop} == ${val}, keep\n`);
-          removeStream = false;
-        }
-      }      
-      if (removeStream){
-        args.jobLog(`Removing stream index ${stream.index} because ${propertyToCheck} of ${prop} ${condition} ${valuesToRemove}\n`);
-        stream.removed = true;
+    if (codecTypeToCheck === 'any' || stream.codec_type=== codecTypeToCheck){
+      let target = '';
+      if (propertyToCheck.includes('.')) {
+        const parts = propertyToCheck.split('.');
+        target = stream[parts[0]]?.[parts[1]];
+      } else {
+        target = stream[propertyToCheck];
       }
-      else {        
-        args.jobLog(`Keeping stream index ${stream.index} because ${propertyToCheck} of ${prop} ${condition} ${valuesToRemove}\n`);
+
+      if (target) {
+        const prop = String(target).toLowerCase();
+        let removeStream = (condition !== 'includes'); //not_includes = true, includes = false
+        for (let i = 0; i < valuesToRemove.length; i += 1) {
+          const val = valuesToRemove[i].toLowerCase();
+
+          if (condition === 'includes' && prop.includes(val)) {
+            args.jobLog(`inc, ${prop} == ${val}, remove\n`);
+            removeStream = true;
+          } else if (condition === 'not_includes' && prop.includes(val)) {
+            args.jobLog(`!inc, ${prop} == ${val}, keep\n`);
+            removeStream = false;
+          }
+        }      
+        if (removeStream){
+          args.jobLog(`Removing stream index ${stream.index} because ${propertyToCheck} of ${prop} ${condition} ${valuesToRemove}\n`);
+          stream.removed = true;
+        }
+        else {        
+          args.jobLog(`Keeping stream index ${stream.index} because ${propertyToCheck} of ${prop} ${condition} ${valuesToRemove}\n`);
+        }
       }
     }
   });
